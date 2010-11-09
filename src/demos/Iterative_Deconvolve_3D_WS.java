@@ -1,10 +1,10 @@
 package demos;
-
+ 
 import ij.*;
 import ij.gui.*;
 import ij.plugin.*;
-import ij.process.*;
 import com.caucho.hessian.client.HessianProxyFactory;
+import ij.process.*;
 import java.awt.image.ColorModel;
 import java.net.MalformedURLException;
 import java.util.logging.Level;
