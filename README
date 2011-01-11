@@ -1,0 +1,35 @@
+This code was developed to show how to use JOCL to leverage OpenCL within ImageJ both on the machine
+ImageJ is running from as well as remotely, using binary web services.
+
+src - Java and OpenCL source files
+sourcedata - PSF and 3D data used as a very small sample data set for the FHT3D Example.
+lib - libraries needed for classes using JOCL, ImageJ, and Hessian 4.0.7
+
+There are several components available in this project to demonstrate various capabilities for use within ImageJ.
+
+//Please ensure you have installed OpenCL and successfully run at least one included GUI based example
+
+Setup: Install OpenCL for your host machine.
+
+To OpenCL files from Java we use JOCL which enables development of OpenCL plugins for ImageJ.
+  Look in the source (src) directory and note the location of fht.cl and sobel.cl.  These files are referenced at runtime and
+  compiled for execution by an OpenCL enabled device.  
+  Start with SobelFilterExample.java and run as Java Application with VM Arguments -Xmx1024m. 
+  The program will load an image from a web server, process it locally using OpenCL, and display the results.  This action
+  acts as a test/control gate to ensure configuration of JOCL and OpenCL native libraries.  Modify this example
+  to suite your needs, but be sure JOCL and OpenCL are working correctly before proceeding.
+ 
+Working with ImageJ: If developing an ImageJ plugin using OpenCL realize that the runtime logic can be placed in the run(String) method.
+JOCL jars and native libraries for the target platform will need to be available for JOCL to make calls into the OpenCL libraries installed on the runtime host.
+  
+Now that you have called OpenCL from Java on your platform. You might have a compute intensive portion of
+a processing pipeline that you may wish to port to OpenCL.  The FHT3D_3D_Deconvolution.java class demonstrates calling OpenCL to perform
+a portion of the processing required from within a complex implementation.
+
+Finally, the need may arise where the GPU compute capabilities you wish to leverage are not on the same computer that ImageJ is running on.  The FHTEJBService and
+Iterative_Deconvolve_3D_WS classes demonstrate how to remotely serve up the functionality leveraging standard, open source J2EE technologies.
+
+
+
+
+  

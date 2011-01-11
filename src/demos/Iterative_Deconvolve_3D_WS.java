@@ -74,7 +74,7 @@ public class Iterative_Deconvolve_3D_WS implements PlugIn {
 
         if (fhtejbservice == null) {
             try {
-                String url = "http://144.92.92.76:8080/EJBHessianFHT/FHTEJBService";
+                String url = "http:microscopy.wisc.edu/EJBHessianFHT/FHTEJBService";
                 HessianProxyFactory factory = new HessianProxyFactory();
                 fhtejbservice = (FHTEJBService) factory.create(FHTEJBService.class, url);
             } catch (MalformedURLException ex) {

@@ -1,9 +1,5 @@
 package publication;
 
-
-
-
-
 import java.awt.Image;
 import java.awt.image.PixelGrabber;
 import java.io.IOException;
@@ -24,6 +20,12 @@ import com.jogamp.opencl.CLDevice.Type;
 import com.jogamp.opencl.CLMemory.Mem;
 import com.jogamp.opencl.CLProgram;
 
+/**
+ * This example will fetch an image from the web and use the installed OpenCL libraries on your host machine to process the image. 
+ * The class will display the processed image.
+ * @author rick
+ *
+ */
 public class SobelFilterExample {
 	static boolean DEBUG = true;
 	static boolean COMPARERESULTS = true;
@@ -47,12 +49,12 @@ public class SobelFilterExample {
 		context.release();
 	}
 
-	public SobelFilterExample ( int w, int h )
+	public SobelFilterExample ( int w, int h, boolean printDebugStatements )
 	{
 		imageHeight = h;
 		imageWidth = w;
 
-		final boolean DEBUG = true;
+		final boolean DEBUG = printDebugStatements;
 		try {
 
 			if( DEBUG )  System.out.println( "Local work size dimensions are max array size of");
@@ -110,25 +112,25 @@ public class SobelFilterExample {
 
 	private synchronized long run( )
 	{		
-		//if( DEBUG ) { System.out.println("Writing the input data set and the convolveKernel to the device...");}
+		if( DEBUG ) { System.out.println("Writing the input data set and the convolveKernel to the device...");}
 		queue.putWriteBuffer( clFloatBufferData, false );
 
 		//make a copy of the data buffer
 		queue.putCopyBuffer( clFloatBufferData, clFloatBufferDataCopy );
 
-		//if( DEBUG ) System.out.println("Starting the timer...");
+		if( DEBUG ) System.out.println("Starting the timer...");
 		long time = System.currentTimeMillis();
 
-		//if( DEBUG ) { System.out.println("Enqueing the kernel w...");}
+		if( DEBUG ) { System.out.println("Enqueing the kernel w...");}
 		queue.put2DRangeKernel(kernel, 0, 0, imageWidth, imageHeight, 0, 0);
 
-		//if( DEBUG ) { System.out.println("Waiting for CLFinish to return...");}
+		if( DEBUG ) { System.out.println("Waiting for CLFinish to return...");}
 		queue.finish();
 
-		//if( DEBUG ) System.out.println("Stopping the java timer...");
+		if( DEBUG ) System.out.println("Stopping the java timer...");
 		time = System.currentTimeMillis() - time;
 
-		//if( DEBUG )  System.out.println("Reading back data from the device...");
+		if( DEBUG )  System.out.println("Reading back data from the device...");
 		queue.putReadBuffer( clFloatBufferData, true );
 
 		return time;
@@ -136,12 +138,20 @@ public class SobelFilterExample {
 
 	public static synchronized void main(String[] args)
 	{
+		// get an image 
+		if( DEBUG )  System.out.println("Retrieving test image...  ");
+		Image image = null; 
+		try {
+			URL url = new URL("http://www.newscenter.philips.com/pwc_nc/main/shared/assets/newscenter/2009_pressreleases/GlyGenix/ultrasound_mediated_gene_delivery_hi-res.jpg");
+			image = ImageIO.read(url); 
+		} catch (IOException e) { } 
+		
 		final int numVariables = 4;
 		final int numIterations = 50;
 		long[] times = new long[numVariables];
 
 		//run test
-		runTest( numIterations, times );
+		runTest( image, numIterations, times );
 
 		System.out.println("The average OpenCL set up time is " + times[0]/numIterations);
 		System.out.println("The average OpenCL IO transfer time is " + times[1]/numIterations);
@@ -158,15 +168,8 @@ public class SobelFilterExample {
 	}
 
 
-	public static synchronized void runTest(int numIterations, long[] totalTime)
+	public static synchronized void runTest( Image image, int numIterations, long[] totalTime)
 	{
-		if( DEBUG )  System.out.println("Retrieving test image...  ");
-		Image image = null; 
-		try {
-			URL url = new URL("http://www.newscenter.philips.com/pwc_nc/main/shared/assets/newscenter/2009_pressreleases/GlyGenix/ultrasound_mediated_gene_delivery_hi-res.jpg");
-			image = ImageIO.read(url); 
-		} catch (IOException e) { } 
-
 		int testWidth = image.getWidth(null);
 		int testHeight = image.getHeight(null);
 
@@ -178,8 +181,6 @@ public class SobelFilterExample {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
-
 
 		for(int iteration = 0; iteration < numIterations; iteration++)
 		{
@@ -199,7 +200,7 @@ public class SobelFilterExample {
 				long time = System.currentTimeMillis();
 
 				//setup OpenCL
-				SobelFilterExample generateSobelFilterData = new SobelFilterExample( testWidth, testHeight );
+				SobelFilterExample generateSobelFilterData = new SobelFilterExample( testWidth, testHeight, true );
 
 				//Stop the performance timer
 				time = System.currentTimeMillis() - time;
