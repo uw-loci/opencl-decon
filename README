@@ -1,35 +1,23 @@
-This code was developed to show how to use JOCL to leverage OpenCL within ImageJ both on the machine
-ImageJ is running from as well as remotely, using binary web services.
+( Please ensure installation of OpenCL prior to running these programs )
+The source at http://dev.loci.wisc.edu/svn/software/branches/maven/projects/opencl-decon was developed to demonstrate successful leveraging of OpenCL within ImageJ using JOCL both locally and remotely (as a binary web service).
 
-src - Java and OpenCL source files
-sourcedata - PSF and 3D data used as a very small sample data set for the FHT3D Example.
+The folder structure of the source consists of the following folders:
+src - Java and OpenCL source files (extension .cl)
+sourcedata - PSF and 3D data used as a small sample data set for the FHT3D Example.
 lib - libraries needed for classes using JOCL, ImageJ, and Hessian 4.0.7
+native - contains the dynamic libraries needed for runtime execution for various operating systems
 
 There are several components available in this project to demonstrate various capabilities for use within ImageJ.
+To use OpenCL from Java in ImageJ we leverage JOCL.  JOCL uses JNI to make calls into the OpenCL API.  The OpenCL code you write can also leverage JOCL to accelerate execution of ImageJ plugins from Java.
 
-//Please ensure you have installed OpenCL and successfully run at least one included GUI based example
+Notice the files fht.cl and sobel.cl in the source (src) directory.  The Java code in provided in the examples compile these two files for execution on the OpenCL enabled device that is programmatically chosen at runtime.  It is runtime compilation of OpenCL that allows execution on any potential OpenCL enabled device.
 
-Setup: Install OpenCL for your host machine.
+Start exploring the examples by viewing the file SobelFilterExample.java.  Notice the Main() method calls run() which use an awt.Image type as an input parameter.  Modify and run the Main() method as Java Application with VM Arguments -Xmx1024m. 
 
-To OpenCL files from Java we use JOCL which enables development of OpenCL plugins for ImageJ.
-  Look in the source (src) directory and note the location of fht.cl and sobel.cl.  These files are referenced at runtime and
-  compiled for execution by an OpenCL enabled device.  
-  Start with SobelFilterExample.java and run as Java Application with VM Arguments -Xmx1024m. 
-  The program will load an image from a web server, process it locally using OpenCL, and display the results.  This action
-  acts as a test/control gate to ensure configuration of JOCL and OpenCL native libraries.  Modify this example
-  to suite your needs, but be sure JOCL and OpenCL are working correctly before proceeding.
- 
-Working with ImageJ: If developing an ImageJ plugin using OpenCL realize that the runtime logic can be placed in the run(String) method.
-JOCL jars and native libraries for the target platform will need to be available for JOCL to make calls into the OpenCL libraries installed on the runtime host.
-  
-Now that you have called OpenCL from Java on your platform. You might have a compute intensive portion of
-a processing pipeline that you may wish to port to OpenCL.  The FHT3D_3D_Deconvolution.java class demonstrates calling OpenCL to perform
-a portion of the processing required from within a complex implementation.
+  Without modification, SobelFilterExample.java loads an image from a web server, process it locally using OpenCL, and displays the results.  There is nothing novel about this example.  It simply allows runtime testing of several system configuration steps to ensure working configuration of JOCL and OpenCL native libraries.  Modify this example to suite your needs, but please ensure proper JOCL and OpenCL configuration before proceeding.
+ 
+Working within ImageJ: If developing an ImageJ plugin using OpenCL realize that programatic control is passed to your plugin inside the PlugIn (or PluginFilter) run() method.  Thus an example of this can be found in src.demos.OpenCL_SobelFilter.java.  For this plugin to run within ImageJ, the JOCL jars and native libraries respective to the target platform will need to be available by the ImageJ classloader.   The supporting JOCL native libraries can be copied into the plugin directory within ImageJ to allow plugin implementations using OpenCL from Java to reference the installed native libraries provided by the OpenCL installation.  
 
-Finally, the need may arise where the GPU compute capabilities you wish to leverage are not on the same computer that ImageJ is running on.  The FHTEJBService and
-Iterative_Deconvolve_3D_WS classes demonstrate how to remotely serve up the functionality leveraging standard, open source J2EE technologies.
+Now that you have a working example of an OpenCL ImageJ plugin (running from Java on your platform). You may wish to see an a compute intensive example demonstrating modification of an existing Java implementation that delegates a portion of the implementation to OpenCL.  Take a look at the developer comments (//xyz) in the FHT3D_3D_Deconvolution.java example to see what steps are used to brokering of data between Java and OpenCL portions of a complex implementation.
 
-
-
-
-  
+Finally, the need may arise where the GPU compute capabilities you wish to leverage are not on the same computer that ImageJ is running on.  The FHTEJBService and Iterative_Deconvolve_3D_WS classes demonstrate how to remotely serve up the functionality leveraging standard, open source J2EE technologies. 
