@@ -51,6 +51,9 @@ public class SobelFilterExample {
 
 	public SobelFilterExample ( int w, int h, boolean printDebugStatements )
 	{
+		// Display java.libary.path -Djava.library.path=""
+		if( DEBUG )  System.out.println(" Java.library.path is " + System.getProperty("java.library.path"));
+		
 		imageHeight = h;
 		imageWidth = w;
 
