@@ -13,7 +13,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/gluegen-rt.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gluegen.jar"/>
 	<classpathentry kind="lib" path="lib/jocl.jar"/>
-	<classpathentry kind="lib" path="lib/JOCL-0.1.4-beta1.jar"/>
 	<classpathentry kind="lib" path="lib/gluegen-rt-natives-linux-amd64.jar"/>
 	<classpathentry kind="lib" path="lib/gluegen-rt-natives-macosx-universal.jar"/>
 	<classpathentry kind="lib" path="lib/gluegen-rt-natives-windows-amd64.jar"/>
