@@ -19,6 +19,7 @@ import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.CLDevice.Type;
 import com.jogamp.opencl.CLMemory.Mem;
 import com.jogamp.opencl.CLProgram;
+import com.jogamp.common.os.Platform;
 
 /**
  * This example will fetch an image from the web and use the installed OpenCL libraries on your host machine to process the image. 
@@ -27,6 +28,7 @@ import com.jogamp.opencl.CLProgram;
  *
  */
 public class SobelFilterExample {
+	Platform p;
 	static boolean DEBUG = true;
 	static boolean COMPARERESULTS = true;
 	static boolean DISPLAYIMAGE = true;

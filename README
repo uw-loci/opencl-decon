@@ -1,4 +1,5 @@
 ( Please ensure installation of OpenCL prior to running these programs )
+
 The source at http://dev.loci.wisc.edu/svn/software/branches/maven/projects/opencl-decon was developed to demonstrate successful leveraging of OpenCL within ImageJ using JOCL both locally and remotely (as a binary web service).
 
 The folder structure of the source consists of the following folders:
@@ -8,7 +9,7 @@ lib - libraries needed for classes using JOCL, ImageJ, and Hessian 4.0.7
 native - contains the dynamic libraries needed for runtime execution of OpenCL code on various operating systems
 
 Background:
-To use OpenCL from Java in ImageJ we leverage JOCL.  JOCL uses JNI to make calls into the OpenCL API.  The OpenCL code you write can also leverage JOCL to accelerate execution of ImageJ plugins from Java.
+To use OpenCL from Java in ImageJ we leverage JOCL.  JOCL uses JNI to make calls into the OpenCL API.  The OpenCL code you write can also leverage JOCL to accelerate execution of ImageJ plugins from Java.  Since each OS has different native JOCL native libraries, the runtime environment must be configured such that the Java code can load the needed native libraries.  For these samples, three native libraries are needed: gluegen-rt, jocl, and JOCL-'platform'-'arch'.  If you look in the lib folder, you will find -natives-xyz.jar files containing the respective libraries.  Simply unzip each of the three jar files and copy the dynamic files into the parent directory if they are not already present.  Then ensure that the platform specific jar (E.g. JOCL-0.1.4-beta) is exported during the project build.
 
 Notice the files fht.cl and sobel.cl in the source (src) directory.  The Java code in provided in the examples compile these two files for execution on the OpenCL enabled device that is programmatically chosen at runtime.  It is runtime compilation of OpenCL that allows execution on any potential OpenCL enabled device.
 
