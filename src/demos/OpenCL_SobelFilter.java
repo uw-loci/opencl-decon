@@ -1,5 +1,9 @@
 package demos;
 
+import java.io.IOException;
+
+import org.imagejdev.api.StreamToString;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.plugin.filter.PlugInFilter;
@@ -15,6 +19,7 @@ public class OpenCL_SobelFilter implements PlugInFilter {
 
 	private ImagePlus imagePlus;  // image plus object needed for processing
     private String argumentString;  // input arguments 
+    private String openCLString;
     
 	@Override
 	public void run( ImageProcessor imageProcessor ) 
@@ -23,13 +28,28 @@ public class OpenCL_SobelFilter implements PlugInFilter {
 		float[] imageFloatData = (float[]) imageProcessor.convertToFloat().getPixels();
 		
 		// run the OpenCL Filter Example
-		SobelFilterExample sobelFilterExample =  new SobelFilterExample( imageProcessor.getWidth(), imageProcessor.getHeight(), false );
+		SobelFilterExample sobelFilterExample = null;
+		try {
+			sobelFilterExample = new SobelFilterExample().init( imageProcessor.getWidth(), imageProcessor.getHeight(), false, openCLString );
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		sobelFilterExample.run( imageFloatData );
 	}
 
 	@Override
-	public int setup( String argumentString, ImagePlus imagePlus ) {
+	public int setup( String argumentString, ImagePlus imagePlus ) 
+	{	
+		// get the OpenCL code string
+		try {
+			this.openCLString = StreamToString.getString( SobelFilterExample.class.getResourceAsStream("sobel.cl"), true );
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		this.argumentString = argumentString;
 		this.imagePlus = imagePlus;
 		if (imagePlus == null) {

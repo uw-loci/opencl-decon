@@ -10,16 +10,18 @@ import java.nio.FloatBuffer;
 
 import javax.imageio.ImageIO;
 
+import org.imagejdev.api.StreamToString;
 
+import com.jogamp.common.os.Platform;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
 import com.jogamp.opencl.CLContext;
-import com.jogamp.opencl.CLKernel;
-import com.jogamp.opencl.CLPlatform;
+import com.jogamp.opencl.CLErrorHandler;
 import com.jogamp.opencl.CLDevice.Type;
+import com.jogamp.opencl.CLKernel;
 import com.jogamp.opencl.CLMemory.Mem;
+import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.CLProgram;
-import com.jogamp.common.os.Platform;
 
 /**
  * This example will fetch an image from the web and use the installed OpenCL libraries on your host machine to process the image. 
@@ -32,7 +34,8 @@ public class SobelFilterExample {
 	static boolean DEBUG = true;
 	static boolean COMPARERESULTS = true;
 	static boolean DISPLAYIMAGE = true;
-	static CLProgram program;
+	static CLProgram program = null;
+	static CLPlatform platform = null;
 	static CLContext context;
 	static CLKernel kernel;
 	static CLCommandQueue queue;
@@ -50,31 +53,34 @@ public class SobelFilterExample {
 	{
 		context.release();
 	}
-
-	public SobelFilterExample ( int w, int h, boolean printDebugStatements )
+	
+	
+	public SobelFilterExample ()
+	{;}
+	
+	public synchronized SobelFilterExample init( int w, int h, boolean printDebugStatements, String openCLCodeString ) throws IOException
 	{
+		//Create a context from GPU
+		context = CLContext.create( Type.GPU );
+		
+		// create the program
+		program = context.createProgram( openCLCodeString ).build( "" );
+		
 		// Display java.libary.path -Djava.library.path=""
 		if( DEBUG )  System.out.println(" Java.library.path is " + System.getProperty("java.library.path"));
 		
 		imageHeight = h;
 		imageWidth = w;
-
+		
+		
 		final boolean DEBUG = printDebugStatements;
-		try {
-
-			if( DEBUG )  System.out.println( "Local work size dimensions are max array size of");
+			
+		if( DEBUG )  {
 			CLPlatform[] platforms = CLPlatform.listCLPlatforms();
 			if( DEBUG ) for(CLPlatform clPlatform : platforms)
 				System.out.println("Discovered " + clPlatform.getName() );
-			context = CLContext.create( Type.GPU );
-
-			this.program = context.createProgram( SobelFilterExample.class.getResourceAsStream("sobel.cl") ).build();
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-
+				
 		if( DEBUG )  System.out.println( "assign the kernel" );
 		kernel = program.createCLKernel("sobel");
 
@@ -95,6 +101,18 @@ public class SobelFilterExample {
 		kernel.setArg( 1, clFloatBufferData );
 		kernel.setArg( 2, imageWidth );
 		kernel.setArg( 3, imageHeight );
+		
+		return this;
+	}
+
+	private void sleepInSeconds( int seconds ) {
+		try {
+			Thread.sleep( seconds * 1000 );
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	public synchronized long run( float[] in )
@@ -141,8 +159,9 @@ public class SobelFilterExample {
 		return time;
 	}
 
-	public static synchronized void main(String[] args)
+	public static void main(String[] args)
 	{
+		
 		// get an image 
 		if( DEBUG )  System.out.println("Retrieving test image...  ");
 		Image image = null; 
@@ -150,13 +169,27 @@ public class SobelFilterExample {
 			URL url = new URL("http://www.newscenter.philips.com/pwc_nc/main/shared/assets/newscenter/2009_pressreleases/GlyGenix/ultrasound_mediated_gene_delivery_hi-res.jpg");
 			image = ImageIO.read(url); 
 		} catch (IOException e) { } 
+
+		int testWidth = image.getWidth(null);
+		int testHeight = image.getHeight(null);
 		
+		
+		
+		// get the OpenCL code
+		String openCLCodeString = null;
+		try {
+			openCLCodeString = StreamToString.getString( SobelFilterExample.class.getResourceAsStream("sobel.cl"), true );
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 		final int numVariables = 4;
-		final int numIterations = 50;
+		final int numIterations = 1;
 		long[] times = new long[numVariables];
 
 		//run test
-		runTest( image, numIterations, times );
+		runTest( image, numIterations, times, openCLCodeString, testWidth, testHeight );
 
 		System.out.println("The average OpenCL set up time is " + times[0]/numIterations);
 		System.out.println("The average OpenCL IO transfer time is " + times[1]/numIterations);
@@ -173,39 +206,37 @@ public class SobelFilterExample {
 	}
 
 
-	public static synchronized void runTest( Image image, int numIterations, long[] totalTime)
+	public static synchronized void runTest( Image image, int numIterations, long[] totalTime, String openCLCodeString, int testWidth, int testHeight )
 	{
-		int testWidth = image.getWidth(null);
-		int testHeight = image.getHeight(null);
-
-		//grab the pixels
-		int[] inputImage = new int[testWidth*testHeight];
-		PixelGrabber pixelGrabber = new PixelGrabber( image, 0, 0, testWidth, testHeight, inputImage, 0, testWidth );
-		try {
-			pixelGrabber.grabPixels();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 
 		for(int iteration = 0; iteration < numIterations; iteration++)
 		{
+			//grab the pixels
+			int[] inputImage = new int[testWidth*testHeight];
+			PixelGrabber pixelGrabber = new PixelGrabber( image, 0, 0, testWidth, testHeight, inputImage, 0, testWidth );
+			try {
+				pixelGrabber.grabPixels();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			//Convert Image to float
+			float[] testImage = new float[testWidth*testHeight];
+			for( int i = 0; i < testWidth; i++ )
+				for( int j = 0; j < testHeight; j++ )
+					testImage[ i*testHeight+j ] = getAvg( inputImage[ i*testHeight+j ]);
+
+			//Clone the input data
+			float[] testImageCopy = testImage.clone();
+			
 			try {
 				System.out.println("Starting iteration... " + iteration );
-
-				//Convert Image to float
-				float[] testImage = new float[testWidth*testHeight];
-				for( int i = 0; i < testWidth; i++ )
-					for( int j = 0; j < testHeight; j++ )
-						testImage[ i*testHeight+j ] = getAvg( inputImage[ i*testHeight+j ]);
-
-				//Clone the input data
-				float[] testImageCopy = testImage.clone();
 
 				//Start the performance timer
 				long time = System.currentTimeMillis();
 
 				//setup OpenCL
-				SobelFilterExample generateSobelFilterData = new SobelFilterExample( testWidth, testHeight, true );
+				SobelFilterExample generateSobelFilterData = new SobelFilterExample().init( testWidth, testHeight, true, openCLCodeString );
 
 				//Stop the performance timer
 				time = System.currentTimeMillis() - time;

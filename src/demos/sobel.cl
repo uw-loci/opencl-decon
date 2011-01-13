@@ -1,4 +1,3 @@
-#pragma OPENCL EXTENSION cl_khr_fp64: enable
 __kernel void sobel( __global float* input,
 	__global float* output,
      int width,
@@ -29,4 +28,4 @@ __kernel void sobel( __global float* input,
 	   
 	    output[offset] = sqrt(  sum1*sum1 + sum2*sum2 );
 	}
-}
+} //#pragma OPENCL EXTENSION cl_khr_fp64: enable
