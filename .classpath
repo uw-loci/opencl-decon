@@ -11,12 +11,16 @@
 	<classpathentry exported="true" kind="lib" path="lib/hessian-4.0.7.jar" sourcepath="lib/hessian-4.0.7-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jocl.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="OpenCLIterative3DDeconvolution/lib/APPLE"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="OpenCLIterative3DDeconvolution/lib/LINUX64"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/hessian-4.0.7-src.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/APPLE/JOCL-0.1.4-beta1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gluegen.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gluegen-rt.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/LINUX64/JOCL-0.1.4-beta1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="OpenCLIterative3DDeconvolution/lib/LINUX64"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

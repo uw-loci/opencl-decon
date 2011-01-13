@@ -30,7 +30,6 @@ import com.jogamp.opencl.CLProgram;
  *
  */
 public class SobelFilterExample {
-	Platform p;
 	static boolean DEBUG = true;
 	static boolean COMPARERESULTS = true;
 	static boolean DISPLAYIMAGE = true;
@@ -161,6 +160,8 @@ public class SobelFilterExample {
 
 	public static void main(String[] args)
 	{
+		// print out java.library.path
+		if (DEBUG) System.out.println( System.getProperty("java.library.path"));
 		
 		// get an image 
 		if( DEBUG )  System.out.println("Retrieving test image...  ");
