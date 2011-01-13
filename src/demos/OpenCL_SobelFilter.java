@@ -4,7 +4,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
-import publication.SobelFilterExample;
 
 /**
  * Demonstrates running of OpenCL from ImageJ as a Plugin

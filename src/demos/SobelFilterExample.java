@@ -1,4 +1,4 @@
-package publication;
+package demos;
 
 import java.awt.Image;
 import java.awt.image.PixelGrabber;
