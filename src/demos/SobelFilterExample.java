@@ -7,17 +7,20 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import javax.imageio.ImageIO;
 
 import org.imagejdev.api.StreamToString;
 
-import com.jogamp.common.os.Platform;
+import com.jogamp.common.nio.Buffers;
+import com.jogamp.common.nio.PointerBuffer;
+import com.jogamp.opencl.CL;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
 import com.jogamp.opencl.CLContext;
-import com.jogamp.opencl.CLErrorHandler;
 import com.jogamp.opencl.CLDevice.Type;
+import com.jogamp.opencl.CLException;
 import com.jogamp.opencl.CLKernel;
 import com.jogamp.opencl.CLMemory.Mem;
 import com.jogamp.opencl.CLPlatform;
@@ -57,14 +60,23 @@ public class SobelFilterExample {
 	public SobelFilterExample ()
 	{;}
 	
-	public synchronized SobelFilterExample init( int w, int h, boolean printDebugStatements, String openCLCodeString ) throws IOException
+    private final void checkError(String msg, int ret) {
+        if(ret != org.jocl.CL.CL_SUCCESS)  //to CLs org.jocl and com.jogamp.opencl
+            throw CLException.newException( ret, msg );
+    }
+
+	
+	public synchronized SobelFilterExample init( int w, int h, boolean printDebugStatements, final String openCLCodeString ) throws IOException
 	{
 		//Create a context from GPU
 		context = CLContext.create( Type.GPU );
-		
+	
 		// create the program
-		program = context.createProgram( openCLCodeString ).build( "" );
+		program = context.createProgram( openCLCodeString );
 		
+		//System.out.println( "Gotz srzs ?" +  program.getSource());
+		program.build();
+	    
 		// Display java.libary.path -Djava.library.path=""
 		if( DEBUG )  System.out.println(" Java.library.path is " + System.getProperty("java.library.path"));
 		
@@ -100,7 +112,7 @@ public class SobelFilterExample {
 		kernel.setArg( 1, clFloatBufferData );
 		kernel.setArg( 2, imageWidth );
 		kernel.setArg( 3, imageHeight );
-		
+
 		return this;
 	}
 
@@ -174,17 +186,18 @@ public class SobelFilterExample {
 		int testWidth = image.getWidth(null);
 		int testHeight = image.getHeight(null);
 		
-		
-		
+	
 		// get the OpenCL code
 		String openCLCodeString = null;
 		try {
-			openCLCodeString = StreamToString.getString( SobelFilterExample.class.getResourceAsStream("sobel.cl"), true );
+			openCLCodeString = StreamToString.getString( SobelFilterExample.class.getResourceAsStream("sobel.cl"), false );
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
+		
+		//if ( DEBUG ) System.out.println( openCLCodeString );
+		
 		final int numVariables = 4;
 		final int numIterations = 1;
 		long[] times = new long[numVariables];
@@ -207,7 +220,7 @@ public class SobelFilterExample {
 	}
 
 
-	public static synchronized void runTest( Image image, int numIterations, long[] totalTime, String openCLCodeString, int testWidth, int testHeight )
+	public static synchronized void runTest( Image image, int numIterations, long[] totalTime, final String openCLCodeString, int testWidth, int testHeight )
 	{
 
 		for(int iteration = 0; iteration < numIterations; iteration++)
