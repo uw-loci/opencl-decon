@@ -19,5 +19,11 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/jocl.jar"/>
+	<classpathentry kind="lib" path="lib/imglib-algorithms.jar"/>
+	<classpathentry kind="lib" path="lib/imglib-ij.jar"/>
+	<classpathentry kind="lib" path="lib/imglib-io.jar"/>
+	<classpathentry kind="lib" path="lib/imglib-scripting.jar"/>
+	<classpathentry kind="lib" path="lib/imglib.jar"/>
+	<classpathentry kind="lib" path="lib/loci_tools.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -812,7 +812,7 @@ public class Iterative_3D_Deconvolution
 			}
 
 			long time = System.currentTimeMillis();
-			long executionTime = fastHartleyTransform3D.run(data, inverse);
+			long executionTime = fastHartleyTransform3D.run( data, inverse );
 			time = System.currentTimeMillis() - time;
 			times[1] += time;
 			times[2] += executionTime;
